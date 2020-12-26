@@ -55,6 +55,7 @@ class _LoginVistaState extends State<LoginVista> {
                 textSection(),
                 buttonSection(_),
                 buttonRegistrar(),
+                buttonFacebook(_),
                 buttonGoogle(_),
               ],
             ),
@@ -151,6 +152,49 @@ class _LoginVistaState extends State<LoginVista> {
       ),
     );
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  Container buttonFacebook(LoginController _) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: 40.0,
+      padding: EdgeInsets.symmetric(horizontal: 15.0),
+      margin: EdgeInsets.only(top: 15.0),
+      child: RaisedButton(
+        onPressed:  () {
+
+
+          _.signInWithFacebook();
+           
+        },
+        elevation: 0.0,
+        color: Colors.green,
+        child: Text("Facebook", style: TextStyle(color: Colors.white70)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+      ),
+    );
+  }
+  
+
+
+
+
+
+
+
 
 
 

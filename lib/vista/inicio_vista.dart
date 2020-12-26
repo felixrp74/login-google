@@ -2,6 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:login_google/vista/login_vista.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
@@ -23,17 +24,26 @@ class _InicioVistaState extends State<InicioVista> {
   }
 
   checkLoginStatus() async {
-    // instancia de goolge
+    // GOOGLE
     final google = FirebaseAuth.instance.currentUser;
+
+    // EMAIL
     sharedPreferences = await SharedPreferences.getInstance();
+
+    // FACEBOOK
+    final AccessToken accessToken = await FacebookAuth.instance.isLogged;
 
     if ( google != null ){ 
       print('google iniciado');
     } else if ( sharedPreferences.getString("token") != null ){
       print("email iniciado");
+    } else if ( accessToken != null ) {
+      print("facebook iniciado");
+
     } else {
         Get.off(LoginVista());
     }
+
 
  
   }
@@ -41,7 +51,7 @@ class _InicioVistaState extends State<InicioVista> {
 
  
 
-
+ 
 
   @override
   Widget build(BuildContext context) {

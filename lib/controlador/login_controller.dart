@@ -10,6 +10,8 @@ import 'package:login_google/vista/inicio_vista.dart';
 import 'package:login_google/vista/login_vista.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+
 class LoginController extends GetxController {
    
   LoginController({
@@ -23,10 +25,14 @@ class LoginController extends GetxController {
   String password;
 
 
-  // instancia de goolge
-  FirebaseAuth auth = FirebaseAuth.instance;
-  final googleSignIn = GoogleSignIn();
+  // GOOGLE
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
   SharedPreferences sharedPreferences;
+
+  // FACEBOOK
+  AccessToken _accessToken;
+  Map<String, dynamic> _userData;
 
 
   // here we go 
@@ -52,42 +58,151 @@ class LoginController extends GetxController {
 
 
 
+ 
+
+Future signInWithFacebook() async {
+
+  print("FACEBOOK LOGIN");
+  // // Trigger the sign-in flow
+  try {
+    _accessToken = await FacebookAuth.instance.login();
+
+    final userData = await FacebookAuth.instance.getUserData();
+    _userData = userData;
+
+    print("que lindas pequitas ${_userData}");
+    Get.off(InicioVista());
+
+  } on FacebookAuthException catch (e) {
+      // if the facebook login fails
+      print(e.message); // print the error message in console
+      // check the error type
+      switch (e.errorCode) {
+        case FacebookAuthErrorCode.OPERATION_IN_PROGRESS:
+          print("You have a previous login operation in progress");
+          break;
+        case FacebookAuthErrorCode.CANCELLED:
+          print("login cancelled");
+          break;
+        case FacebookAuthErrorCode.FAILED:
+          print("login failed");
+          break;
+      }
+    } catch (e, s) {
+      // print in the logs the unknown errors
+      print(e);
+      print(s);
+    } finally {
+      // update the view
+      // setState(() {
+      //   _checking = false;
+      // });
+    }
+}
+
+
+
+  Future<void> logout() async {
+
+    print("SALIENDO... ");
+    final AccessToken accessToken = await FacebookAuth.instance.isLogged;
+
+    // if ( accessToken != null ) {
+    //   await FacebookAuth.instance.logOut();
+    //   _accessToken = null;
+    //   Get.off(LoginVista());
+    //   print("SALIR FACEBOOK");
+
+    // }
 
 
 
 
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    // AccessToken esLogeado =  await FacebookAuth.instance.isLogged;
 
 
 
+    if(   sharedPreferences.getString("token") != null ) {
+      String valor = sharedPreferences.getString("token");
+      print("TOKEN=========== $valor");
+      sharedPreferences.clear();
+      print("SALIR EMAIL");
+      Get.off(LoginVista());
+
+
+
+
+    } else if ( _auth.currentUser != null ){
+      await googleSignIn.disconnect();
+      FirebaseAuth.instance.signOut();
+      print("SALIR GOOGLE");
+      Get.off(LoginVista());
+
+
+
+
+    } else if ( accessToken != null ) {
+      await FacebookAuth.instance.logOut();
+      _accessToken = null;
+      Get.off(LoginVista());
+      print("SALIR FACEBOOK");
+
+    
+
+
+    } else {
+      Get.snackbar("SALIR", "ERROR");
+
+    }
+
+    
+  }
 
 
 
 
   Future signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+    // // Trigger the authentication flow
+    // final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    // // Obtain the auth details from the request
+    // final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-    // Create a new credential
-    final GoogleAuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
+    // // Create a new credential
+    // final GoogleAuthCredential credential = GoogleAuthProvider.credential(
+    //   accessToken: googleAuth.accessToken,
+    //   idToken: googleAuth.idToken,
+    // );
+
+    
+
+    
+    // // Once signed in, return the UserCredential
+    // await FirebaseAuth.instance.signInWithCredential(credential);
+
+    // =================NUEVO================
+
+    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
     );
 
+    // logear con firebase
+    final UserCredential authResult = await _auth.signInWithCredential(credential);
+    final User user = authResult.user;
     
-    // Once signed in, return the UserCredential
-    await FirebaseAuth.instance.signInWithCredential(credential);
-    
-    this.enviarLaravel();
+    this.enviarLaravelGoogle();
 
     // enrutar a inicio_vista.dart
-    Get.to(InicioVista());
+    Get.off(InicioVista());
   }
 
 
-  void enviarLaravel () async{    
+  void enviarLaravelGoogle () async{    
     final user = FirebaseAuth.instance.currentUser;
     print("------------------------->${user.displayName}===================");
     // String url = 'http://127.0.0.1:8000/api/logingoogle';
@@ -115,25 +230,6 @@ class LoginController extends GetxController {
 
 
 
-  void logout() async {
-    
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-
-    if(   sharedPreferences.getString("token") != null) {
-      String valor = sharedPreferences.getString("token");
-      print("TOKEN=========== $valor");
-      sharedPreferences.clear();
-      Get.off(LoginVista());
-    } else if (googleSignIn != null){
-      await googleSignIn.disconnect();
-      FirebaseAuth.instance.signOut();
-
-      print("GOOGLE SALIR");
-      Get.off(LoginVista());
-    } else {
-      Get.snackbar("SALIR", "ERROR");
-    }
-  }
 
 
 
