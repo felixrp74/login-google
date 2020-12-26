@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:login_google/vista/inicio_vista.dart';
+import 'package:login_google/vista/login_vista.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginController extends GetxController {
@@ -115,9 +116,23 @@ class LoginController extends GetxController {
 
 
   void logout() async {
-    await googleSignIn.disconnect();
-    FirebaseAuth.instance.signOut();
-    print("GOOGLE SALIR");
+    
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    if(   sharedPreferences.getString("token") != null) {
+      String valor = sharedPreferences.getString("token");
+      print("TOKEN=========== $valor");
+      sharedPreferences.clear();
+      Get.off(LoginVista());
+    } else if (googleSignIn != null){
+      await googleSignIn.disconnect();
+      FirebaseAuth.instance.signOut();
+
+      print("GOOGLE SALIR");
+      Get.off(LoginVista());
+    } else {
+      Get.snackbar("SALIR", "ERROR");
+    }
   }
 
 
