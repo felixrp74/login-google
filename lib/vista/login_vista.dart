@@ -1,15 +1,9 @@
-import 'dart:convert';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:login_google/controlador/login_controller.dart';
-import 'package:login_google/vista/inicio_vista.dart';
 import 'package:login_google/vista/registrar_vista.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 
 class LoginVista extends StatefulWidget {
@@ -28,9 +22,7 @@ class _LoginVistaState extends State<LoginVista> {
 
 
 
-
-  
-   bool _isLoading = false;
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +40,7 @@ class _LoginVistaState extends State<LoginVista> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter),
             ),
-            child: _isLoading ? Center(child: CircularProgressIndicator()) : 
+            child: _.isLoading ? Center(child: CircularProgressIndicator()) : 
             ListView(
               children: <Widget>[
                 headerSection(),
@@ -66,47 +58,7 @@ class _LoginVistaState extends State<LoginVista> {
     );
   }
 
-  
-  // signIn(String email, pass) async {
-  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  //   Map data = {
-  //     'email': email,
-  //     'password': pass
-  //   };
-  //   var jsonResponse ;
-
-  //   var response = await http.post("http://192.168.0.106:8000/api/login", body: data);
-  //   // var response = await http.post("http://192.168.0.108:8000/api/login", body: data);
-  //   // var response = await http.post("http://192.168.43.104:8000/api/login", body: data);
-
-  //   // print()
-  //   if(response.statusCode == 201) { 
-  //     jsonResponse = json.decode(response.body);
-  //     print('Response status: ${response.statusCode}');
-  //     print('Response body: ${response.body}');
-
-  //     if(jsonResponse != null) {
-  //       setState(() {
-  //         _isLoading = false;
-  //       });
-
-  //       sharedPreferences.setString("token", jsonResponse['token']);
-
-  //       String toke=sharedPreferences.getString("token");
-  //       print("============token=========$toke=============");
-        
-  //       Get.off(InicioVista());
-  //     }
-  //   }
-  //   else {
-  //     setState(() {
-  //       _isLoading = false;
-  //       }
-  //     );
-  //     print(response.body);
-  //   }
-  // }
-
+   
   Container buttonSection(LoginController _) {
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -115,9 +67,11 @@ class _LoginVistaState extends State<LoginVista> {
       margin: EdgeInsets.only(top: 15.0),
       child: RaisedButton(
         onPressed: emailController.text == "" || passwordController.text == "" ? null : () {
-          setState(() {
-            _isLoading = true;
-          });
+          // setState(() {
+            // _._isLoading.value = true;
+            _.isLoading = true;
+            // update();
+          // });
           _.signIn(emailController.text, passwordController.text);
         },
         // onPressed: (){

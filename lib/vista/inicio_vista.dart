@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:login_google/vista/login_vista.dart';
+import 'package:login_google/vista/setting_vista.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:login_google/controlador/login_controller.dart';
@@ -35,8 +36,10 @@ class _InicioVistaState extends State<InicioVista> {
 
     if ( google != null ){ 
       print('google iniciado');
+
     } else if ( sharedPreferences.getString("token") != null ){
       print("email iniciado");
+
     } else if ( accessToken != null ) {
       print("facebook iniciado");
 
@@ -64,17 +67,24 @@ class _InicioVistaState extends State<InicioVista> {
             actions: [
               FlatButton(
                 onPressed: () { 
-                  print("SALIR");
-
+                  print("salir pressed");
                   _.logout();
-
 
                 },
                 child: Text("Salir", style: TextStyle(color: Colors.white)),
               ),
+              IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: () {
+                  Get.to(SettingsUI());
+                }
+              ),
             ],
           ),      
-          body: Text('estoy armando LOGIN GOOGLE FACEBOOK EMAIL'),
+          body: Text(
+            "estoy armando LOGIN GOOGLE FACEBOOK EMAIL", 
+            style: TextStyle(fontSize: 40)
+          ),
         );
       }
     );

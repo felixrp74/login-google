@@ -34,9 +34,14 @@ class LoginController extends GetxController {
   AccessToken _accessToken;
   Map<String, dynamic> _userData;
 
+  // EMAIL
+   bool isLoading = false;
+  //  bool get isLoading => this._isLoading;
+  //  bool 
+
 
   // here we go 
-  String urlRegistrar = "http://192.168.0.103:8000/api/register";
+  String urlRegistrar = "http://felix.gruposistemas.org/api/register";
   
   @override
   void onReady(){
@@ -105,32 +110,18 @@ Future signInWithFacebook() async {
   Future<void> logout() async {
 
     print("SALIENDO... ");
+
     final AccessToken accessToken = await FacebookAuth.instance.isLogged;
-
-    // if ( accessToken != null ) {
-    //   await FacebookAuth.instance.logOut();
-    //   _accessToken = null;
-    //   Get.off(LoginVista());
-    //   print("SALIR FACEBOOK");
-
-    // }
-
-
-
-
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    // AccessToken esLogeado =  await FacebookAuth.instance.isLogged;
-
-
+  
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance(); 
 
     if(   sharedPreferences.getString("token") != null ) {
-      String valor = sharedPreferences.getString("token");
-      print("TOKEN=========== $valor");
+   
+      // String valor = sharedPreferences.getString("token");
+      // print("TOKEN=========== $valor");
       sharedPreferences.clear();
       print("SALIR EMAIL");
       Get.off(LoginVista());
-
-
 
 
     } else if ( _auth.currentUser != null ){
@@ -140,15 +131,11 @@ Future signInWithFacebook() async {
       Get.off(LoginVista());
 
 
-
-
     } else if ( accessToken != null ) {
       await FacebookAuth.instance.logOut();
       _accessToken = null;
       Get.off(LoginVista());
       print("SALIR FACEBOOK");
-
-    
 
 
     } else {
@@ -162,25 +149,22 @@ Future signInWithFacebook() async {
 
 
 
-  Future signInWithGoogle() async {
-    // // Trigger the authentication flow
-    // final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
 
-    // // Obtain the auth details from the request
-    // final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-    // // Create a new credential
-    // final GoogleAuthCredential credential = GoogleAuthProvider.credential(
-    //   accessToken: googleAuth.accessToken,
-    //   idToken: googleAuth.idToken,
-    // );
 
-    
 
-    
-    // // Once signed in, return the UserCredential
-    // await FirebaseAuth.instance.signInWithCredential(credential);
 
+
+
+
+
+
+
+
+
+
+
+  Future signInWithGoogle() async { 
     // =================NUEVO================
 
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
@@ -204,15 +188,12 @@ Future signInWithFacebook() async {
 
   void enviarLaravelGoogle () async{    
     final user = FirebaseAuth.instance.currentUser;
-    print("------------------------->${user.displayName}===================");
-    // String url = 'http://127.0.0.1:8000/api/logingoogle';
-    // String urlReemplazo = 'http://192.168.0.103:8000/api/logingoogle';
-    String urlReemplazo = 'http://192.168.0.106:8000/api/logingoogle';
+    print("------------------------->${user.displayName}==================="); 
+    this.sharedPreferences.setString("name", user.displayName);
 
-    http.Response res = await http.post(
-      // EL PROBLEMA ES QUE SE ADMITE COMUNICAION ENTRE FLUTER Y LARAVEL
-      // CON EL HOST http://127.0.0.1:8000
-      // 'http://127.0.0.1:8000/api/logingoogle?name=lio&email=mesi%40'
+    String urlReemplazo = 'http://felix.gruposistemas.org/api/logingoogle';
+
+    http.Response res = await http.post( 
       urlReemplazo,
       body: {
         'name': user.displayName,
@@ -255,7 +236,7 @@ Future signInWithFacebook() async {
     print("$password");
 
     http.Response res = await http.post(
-      'http://192.168.0.106:8000/api/register',
+      'http://felix.gruposistemas.org/api/register',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -293,54 +274,7 @@ Future signInWithFacebook() async {
 
 
 
-
-
-
-
-  // GOOGLE 
-  // Future<http.Response> registrarGoogle() async {
-     
-  //   print("$name");
-  //   print("$email");
-  //   // print("$password");
-
-  //   http.Response res = await http.post(
-  //     'http://192.168.0.106:8000/api/logingoogle',
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //     },
-
-  //     body: jsonEncode(<String, String>{
-  //       'name': name,
-  //       'email': email,
-  //       // 'password': password
-  //     }),
-      
-  //   ); 
-
-
-  //   print("=============REGISTRAR GOOGLE============");
-
-  //   if ( res.statusCode == 200 ) {
-  //     print("=============google============");
-  //     this.signIn(name, password);
-  //     // Get.to(InicioVista());
-
-  //   }else {
-  //     print("=============NO REGISTRO============");
-  //     throw "cant register";
-  //   }
-  // }
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -357,11 +291,10 @@ Future signInWithFacebook() async {
     };
     var jsonResponse ;
 
-    var response = await http.post("http://192.168.0.106:8000/api/login", body: data);
-    // var response = await http.post("http://192.168.0.108:8000/api/login", body: data);
-    // var response = await http.post("http://192.168.43.104:8000/api/login", body: data);
+    String url="http://felix.gruposistemas.org/api/login";
 
-    // print()
+    var response = await http.post(url, body: data); 
+
     if(response.statusCode == 201) { 
       jsonResponse = json.decode(response.body);
       print('Response status: ${response.statusCode}');
@@ -378,65 +311,20 @@ Future signInWithFacebook() async {
       }
     }
     else {
-       
+      print("error login");
+      
+      isLoading = false;
+      Get.off(LoginVista());
+      // Get.
+      update();
       print(response.body);
     }
   }
 
 
+ 
 
 
-
-
-
-
-
-
-
-  // GOOGLE
-  void iniciarGoogle( ) async {
-    try{
-      
-      GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
-      await _googleSignIn.signIn();
-      String email = _googleSignIn.currentUser.displayName.toString();
-      String password = _googleSignIn.currentUser.email.toString();
-      this.signIn(email, password);
-      // Text(_googleSignIn.currentUser.displayName),
-                  // Text(_googleSignIn.currentUser.email),
-      print('===========GOOGLE HECHO====');
-        
-    } catch (err){
-      print(err);
-    }
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  factory LoginController.fromJson(Map<String, dynamic> json) => LoginController(
-      name: json["name"],
-      email: json["email"],
-      password: json["password"],
-  );
-
-  Map<String, dynamic> toJson() => {
-      "name": name,
-      "email": email,
-      "password": password,
-  };
+ 
 
 }
