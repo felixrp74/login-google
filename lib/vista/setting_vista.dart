@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:login_google/controlador/theme_controller.dart';
 import 'package:login_google/modelo/menu_option_model.dart';
+import 'package:login_google/vista/actualizar_perfil_vista.dart';
 import 'package:login_google/vista/segmented_selector.dart'; 
 
 
@@ -26,16 +27,16 @@ class SettingsUI extends StatelessWidget {
         // languageListTile(context),
         themeListTile(context),
 
-        // ListTile(
-        //     title: Text(labels.settings.updateProfile),
-        //     trailing: RaisedButton(
-        //       onPressed: () async {
-        //         Get.to(UpdateProfileUI());
-        //       },
-        //       child: Text(
-        //         labels.settings.updateProfile,
-        //       ),
-        //     )),
+        ListTile(
+          title: Text("Perfil"),
+          trailing: RaisedButton(
+            onPressed: () async {
+              Get.to(ActualizarPerfilVista());
+            },
+            child: Text(
+              "Actualizar"
+            ),
+          )),
 
 
 
@@ -46,7 +47,7 @@ class SettingsUI extends StatelessWidget {
               // AuthController.to.signOut();
             },
             child: Text( 
-              "out",
+              "Salir",
             ),
           ),
         )

@@ -1,30 +1,21 @@
  
 import 'dart:convert';
 
-// import 'package:login_google/pages/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:login_google/modelo/model_usuario.dart';
 import 'package:login_google/vista/inicio_vista.dart';
 import 'package:login_google/vista/login_vista.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
+
 class LoginController extends GetxController {
-   
-  LoginController({
-        this.name,
-        this.email,
-        this.password,
-    });
-
-  String name;
-  String email;
-  String password;
-
-
+  Rx<UsuarioModel> usuario = UsuarioModel(name: "go@go", email: "go@go", password: "go@go" ).obs;
+ 
   // GOOGLE
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -35,13 +26,7 @@ class LoginController extends GetxController {
   Map<String, dynamic> _userData;
 
   // EMAIL
-   bool isLoading = false;
-  //  bool get isLoading => this._isLoading;
-  //  bool 
-
-
-  // here we go 
-  String urlRegistrar = "http://felix.gruposistemas.org/api/register";
+  bool isLoading = false; 
   
   @override
   void onReady(){
@@ -68,14 +53,22 @@ class LoginController extends GetxController {
 Future signInWithFacebook() async {
 
   print("FACEBOOK LOGIN");
-  // // Trigger the sign-in flow
+  
+  // Trigger the sign-in flow
   try {
     _accessToken = await FacebookAuth.instance.login();
 
     final userData = await FacebookAuth.instance.getUserData();
     _userData = userData;
 
-    print("que lindas pequitas ${_userData}");
+    print(_userData["name"]);
+    print(_userData["email"]);
+
+    usuario.value.name = _userData["name"];
+    usuario.value.email = _userData["email"];
+
+    enviarLaravelGoogle();
+
     Get.off(InicioVista());
 
   } on FacebookAuthException catch (e) {
@@ -115,16 +108,16 @@ Future signInWithFacebook() async {
   
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance(); 
 
-    if(   sharedPreferences.getString("token") != null ) {
+    // if(   sharedPreferences.getString("token") != null ) {
    
       // String valor = sharedPreferences.getString("token");
       // print("TOKEN=========== $valor");
       sharedPreferences.clear();
       print("SALIR EMAIL");
       Get.off(LoginVista());
+ 
 
-
-    } else if ( _auth.currentUser != null ){
+    if ( _auth.currentUser != null ){
       await googleSignIn.disconnect();
       FirebaseAuth.instance.signOut();
       print("SALIR GOOGLE");
@@ -136,7 +129,6 @@ Future signInWithFacebook() async {
       _accessToken = null;
       Get.off(LoginVista());
       print("SALIR FACEBOOK");
-
 
     } else {
       Get.snackbar("SALIR", "ERROR");
@@ -178,6 +170,10 @@ Future signInWithFacebook() async {
     // logear con firebase
     final UserCredential authResult = await _auth.signInWithCredential(credential);
     final User user = authResult.user;
+
+    usuario.value.name = user.displayName;
+    usuario.value.email = user.email;
+
     
     this.enviarLaravelGoogle();
 
@@ -187,27 +183,31 @@ Future signInWithFacebook() async {
 
 
   void enviarLaravelGoogle () async{    
-    final user = FirebaseAuth.instance.currentUser;
-    print("------------------------->${user.displayName}==================="); 
-    this.sharedPreferences.setString("name", user.displayName);
+    // final user = FirebaseAuth.instance.currentUser;
+    // print("------------------------->${user.displayName}==================="); 
+    // this.sharedPreferences.setString("name", user.displayName);
 
-    String urlReemplazo = 'http://felix.gruposistemas.org/api/logingoogle';
+    // String urlReemplazo = 'http://felix.gruposistemas.org/api/logingoogle';
+    String urlReemplazo = 'http://192.168.0.106:8000/api/logingoogle';
 
     http.Response res = await http.post( 
       urlReemplazo,
       body: {
-        'name': user.displayName,
-        'email': user.email,
+        'name': usuario.value.name,
+        'email': usuario.value.email,
       }
     );
 
-    print("------------------------codigo estado= ${res.statusCode}" );
+    print("codigo estado= ${res.statusCode}" );
+    print(res.body);
+
     if (res.statusCode == 500){
       print("email ya existe");
     }
 
 
   }
+ 
 
 
 
@@ -231,9 +231,9 @@ Future signInWithFacebook() async {
 
   Future<http.Response> registrar() async {
      
-    print("$name");
-    print("$email");
-    print("$password");
+    print("name "+usuario.value.name);
+    print("email "+usuario.value.email);
+    print("password "+usuario.value.password); 
 
     http.Response res = await http.post(
       'http://felix.gruposistemas.org/api/register',
@@ -242,20 +242,19 @@ Future signInWithFacebook() async {
       },
 
       body: jsonEncode(<String, String>{
-        'name': name,
-        'email': email,
-        'password': password
+        'name': usuario.value.name,
+        'email': usuario.value.email,
+        'password': usuario.value.password
       }),
       
     ); 
 
 
-    print("=============REGISTRAR JAJAJAS============");
+    print("=============REGISTRAR ============");
 
     if ( res.statusCode == 200 ) {
       print("=============DANCING============");
-      this.signIn(email, password);
-      // Get.to(InicioVista());
+      this.signIn();
 
     }else {
       print("=============NO REGISTRO============");
@@ -283,11 +282,14 @@ Future signInWithFacebook() async {
 
 
 
-  void signIn(String email, String pass) async {
+  void signIn() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    print("email "+usuario.value.email);
+    print("passs "+usuario.value.password);
+
     Map data = {
-      'email': email,
-      'password': pass
+      'email': usuario.value.email,
+      'password': usuario.value.password,
     };
     var jsonResponse ;
 
@@ -304,10 +306,10 @@ Future signInWithFacebook() async {
 
         sharedPreferences.setString("token", jsonResponse['token']);
 
-        String toke=sharedPreferences.getString("token");
-        print("======CONTROLLER======token=========$toke=============");
+        String token=sharedPreferences.getString("token");
+        print("======CONTROLLER======token=========$token=============");
         
-        Get.off(InicioVista());
+        Get.offAll(InicioVista());
       }
     }
     else {

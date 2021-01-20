@@ -28,8 +28,6 @@ class RegistradorControlador extends GetxController {
     super.onReady();
     print("ON READY REGISTRAR");
    
-    // registrar();
-    // this.loadCelular();
   }
 
 

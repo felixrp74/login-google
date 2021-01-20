@@ -45,7 +45,7 @@ class _LoginVistaState extends State<LoginVista> {
               children: <Widget>[
                 headerSection(),
                 textSection(),
-                buttonSection(_),
+                buttonEmail(_),
                 buttonRegistrar(),
                 buttonFacebook(_),
                 buttonGoogle(_),
@@ -59,34 +59,55 @@ class _LoginVistaState extends State<LoginVista> {
   }
 
    
-  Container buttonSection(LoginController _) {
+  Container buttonEmail(LoginController _) {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 40.0,
       padding: EdgeInsets.symmetric(horizontal: 15.0),
       margin: EdgeInsets.only(top: 15.0),
       child: RaisedButton(
-        onPressed: emailController.text == "" || passwordController.text == "" ? null : () {
-          // setState(() {
-            // _._isLoading.value = true;
+        onPressed:   () {
+
+          if(emailController.text != "" || passwordController.text != ""){
             _.isLoading = true;
-            // update();
-          // });
-          _.signIn(emailController.text, passwordController.text);
+            _.usuario.value.email = emailController.text;
+            _.usuario.value.password =  passwordController.text;
+            print("diario: "+_.usuario.value.email);
+            _.signIn();
+
+          }else {
+            print("snackbar");
+            Get.snackbar(
+              "error", "en campos ",
+              colorText: Colors.white,
+              backgroundColor: Colors.black54,
+              barBlur: 20,
+            );
+          }
         },
-        // onPressed: (){
-        //   setState(() {
-        //     _isLoading = true;
-        //   });
-        //   signIn(emailController.text, passwordController.text);
-        // },
-        elevation: 0.0,
-        color: Colors.purple,
         child: Text("Iniciar email", style: TextStyle(color: Colors.white70)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
       ),
     );
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
   Container buttonRegistrar() {
     return Container(
@@ -106,6 +127,9 @@ class _LoginVistaState extends State<LoginVista> {
       ),
     );
   }
+
+
+
 
 
 

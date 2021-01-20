@@ -1,20 +1,13 @@
 
-import 'package:login_google/controlador/login_controller.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter/services.dart';
+import 'package:login_google/controlador/login_controller.dart';
 
-class RegistrarVista extends StatefulWidget {
- const RegistrarVista({Key key}) : super(key: key);
-
-  @override
-  _RegistrarVistaState createState() => _RegistrarVistaState();
-}
-
-class _RegistrarVistaState extends State<RegistrarVista> {
-final GlobalKey<FormFieldState<String>> _passwordFieldKey =
+class ActualizarPerfilVista extends StatelessWidget {
+  final GlobalKey<FormFieldState<String>> _passwordFieldKey =
       GlobalKey<FormFieldState<String>>();
-
+      
   String _name="";
   String _email="";
   String _password="";
@@ -23,22 +16,15 @@ final GlobalKey<FormFieldState<String>> _passwordFieldKey =
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
-  String _validateName(String value) {
-    if (value.isEmpty) return 'Nambre es requerido.';
-    final RegExp nameExp = RegExp(r'^[A-Za-z ]+$');
-    if (!nameExp.hasMatch(value)) {
-      return 'Por favor caracteres alfabeto.';
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LoginController>(
       init: LoginController(),
       builder: (_) {
         return Scaffold(
-          appBar: AppBar( title: Text('Registro')),
+          appBar: AppBar(
+            title: Text("perfil"),
+          ),
           body: Container(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),       
@@ -61,7 +47,7 @@ final GlobalKey<FormFieldState<String>> _passwordFieldKey =
                       this._name = value;
                       print('name=$_name');
                     },
-                    validator: _validateName,
+                    // validator: _validateName,
                   ),
                   const SizedBox(height: 24.0), 
                   // "Email" form.
@@ -92,43 +78,26 @@ final GlobalKey<FormFieldState<String>> _passwordFieldKey =
                     onFieldSubmitted: (String value) {
                       // this._password = value;
                       // update();
-                      setState(() {
-                        this._password = value;
-                      });
+                      // setState(() {
+                      //   this._password = value;
+                      // });
                     },
                   ),
                   const SizedBox(height: 24.0),
                   
                   // boton registrar
                   RaisedButton(
-                    onPressed:  ()  {
+                    onPressed: nameController.text == "" || emailController.text == "" || this._password == "" ? null : () {
+                   
+                      _.usuario.value.name = nameController.text;
+                      _.usuario.value.email = emailController.text;
+                      _.usuario.value.password = this._password;
 
-                      print("boton raised");
-                      
-                      if( nameController.text != "" || emailController.text != "" || this._password != "" ){
-                        print("ifelse");
-
-                        _.usuario.value.name = nameController.text;
-                        _.usuario.value.email = emailController.text;
-                        _.usuario.value.password = this._password;
-                        
-                        _.registrar(); 
-
-                      
-                      }else {
-                        print("snackbar");
-                        Get.snackbar(
-                          "error", "en campos / existe usuario",
-                          colorText: Colors.white,
-                          backgroundColor: Colors.black54,
-                          barBlur: 20,
-                        );
-                      }
-
+                      _.registrar(); 
                     }, 
-                    // color: Colors.purple,
-                    child: Text("Registrarse", style: TextStyle(color: Colors.white70)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+                    color: Colors.purple,
+                      child: Text("Registrar", style: TextStyle(color: Colors.white70)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
                   ),
                 
                 ]
@@ -136,11 +105,12 @@ final GlobalKey<FormFieldState<String>> _passwordFieldKey =
             ),
           ),
         );
-
       }
     );
   }
 }
+
+
 
 
 class PasswordField extends StatefulWidget {
