@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
@@ -132,7 +133,7 @@ Future signInWithFacebook() async {
 
     } else {
       Get.snackbar("SALIR", "ERROR");
-
+      
     }
 
     
@@ -187,8 +188,7 @@ Future signInWithFacebook() async {
     // print("------------------------->${user.displayName}==================="); 
     // this.sharedPreferences.setString("name", user.displayName);
 
-    // String urlReemplazo = 'http://felix.gruposistemas.org/api/logingoogle';
-    String urlReemplazo = 'http://192.168.0.106:8000/api/logingoogle';
+    String urlReemplazo = 'http://felix.gruposistemas.org/api/logingoogle'; 
 
     http.Response res = await http.post( 
       urlReemplazo,
@@ -284,8 +284,8 @@ Future signInWithFacebook() async {
 
   void signIn() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    print("email "+usuario.value.email);
-    print("passs "+usuario.value.password);
+    print("email--- "+usuario.value.email);
+    print("passs--- "+usuario.value.password);
 
     Map data = {
       'email': usuario.value.email,
@@ -317,7 +317,12 @@ Future signInWithFacebook() async {
       
       isLoading = false;
       Get.off(LoginVista());
-      // Get.
+      Get.snackbar(
+        "error", "pusiste email invalido ",
+        colorText: Colors.white,
+        backgroundColor: Colors.black54,
+        barBlur: 20,
+      );
       update();
       print(response.body);
     }

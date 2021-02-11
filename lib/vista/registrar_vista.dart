@@ -46,6 +46,8 @@ final GlobalKey<FormFieldState<String>> _passwordFieldKey =
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
+                  const SizedBox(height: 24.0),
+                   
                    // "name" form.
                   TextFormField(
                     controller: nameController,
@@ -84,33 +86,58 @@ final GlobalKey<FormFieldState<String>> _passwordFieldKey =
                   const SizedBox(height: 24.0),
 
                   // "Password" form.
-                  PasswordField(
-                    // controller: passwordController,
-                    fieldKey: _passwordFieldKey,
-                    helperText: 'nomas que  8 caracteres.',
-                    labelText: 'Password *',
-                    onFieldSubmitted: (String value) {
-                      // this._password = value;
-                      // update();
-                      setState(() {
-                        this._password = value;
-                      });
+                  // PasswordField(
+                  //   // controller: passwordController,
+                  //   fieldKey: _passwordFieldKey,
+                  //   helperText: 'nomas que  8 caracteres.',
+                  //   labelText: 'Password *',
+                  //   onFieldSubmitted: (String value) {
+
+                  //     print("por alguna ");
+                  //     // this._password = value;
+                  //     // // update();
+                  //     //  print("----antes: $value");
+                  //     // setState(() {
+                  //     //   this._password = value;
+
+                  //     //   print("----pass: $value");
+                  //     // });
+                  //   },
+                  // ),
+
+                  TextFormField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.lock),
+                      filled: true,
+                      hintText: "pass",
+                      labelText: "contrasena",
+                      
+                    ),
+                    onSaved: (String value) {
+                      this._password = value;
+                      print('email=$_email');
                     },
+
                   ),
                   const SizedBox(height: 24.0),
-                  
+                   
                   // boton registrar
                   RaisedButton(
                     onPressed:  ()  {
 
-                      print("boton raised");
+                      print("name: ${nameController.text}");
+                      print("name: ${emailController.text}");
+                      print("name: ${passwordController.text}");
                       
-                      if( nameController.text != "" || emailController.text != "" || this._password != "" ){
-                        print("ifelse");
+                      if( nameController.text != "" && emailController.text != "" && 
+                      passwordController.text != ""  ){
+                        print("como ");
 
                         _.usuario.value.name = nameController.text;
                         _.usuario.value.email = emailController.text;
-                        _.usuario.value.password = this._password;
+                        _.usuario.value.password = passwordController.text;
                         
                         _.registrar(); 
 
